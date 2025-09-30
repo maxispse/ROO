@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        var a = 0;
+        let b = 3;
+        const c = 20;
+
+        console.log(a);
+        console.log(b);
+        console.log(c);
+        
+        function SayHelloWorld(msg){
+            console.log('Hello World!');
+        }
+
+        const sum = (a,b) => {
+            return a + b;
+        }
+        
+        const d = 30 > 20 ? "Ano je" : "Nie je";
+        
+        const result = sum(4,5);
+        console.log(result);
+        SayHelloWorld();
+
+        const str3 = 'Hello, ';
+        const str4 = 'Name';
+        const str5 = str3 + str4;
+        console.log(str5)
+
+        const array = [1, 2, 3 ,4]
+        array.push(6)
+        console.log(array)
+
+        array.unshift(23)
+        console.log(array)
+
+        array.pop(23)
+        console.log(array)
+
+        array.shift(23)
+        console.log(array)
+        console.log(array.slice (1, -1))
+        console.log(array.join (', '))
+        console.log(typeof array)
+
+        const A = null
+        const B = undefined
+        let C;
+
+        console.log(C)
+
+        const obj = {
+            id: 30,
+            user: 'Dobiľ',
+            favColor: 'red',
+
+            familyMembers: {
+                dad: 'John',
+                mom: 'Jane',
+                childs: ('John, Jane')
+            },
+
+            SayMyName() {
+                console.log(this.user);
+            }
+        }
+
+        function callMyFunction(cb) {
+            cb('Parameter from callmyFn')
+        }
+
+        function myFunction(msg) {
+            console.log(msg)
+        }
+
+        callMyFunction(myFunction)
+        console.log(obj)
+
+        const arria = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+        /*for (let i = 0; i < array.length; i++){
+            array[i] = array[i] * 2
+        }
+
+        const double = arria.map((i) => i * 2)
+        console.log(double)
+
+        const even = arria.filter((i) => i % 2 === 0)
+        console.log(even)*/
+
+        const even = arria
+        //filter ((i) => i % 2 == 0)
+        //map ((i) => i * 2)
+        //forEach((i) =>{
+            //console.log(i)
+        //})
+
+        const isNumberArray = array.every((item) => typeof item === "number");
+        const containsNumber = array.some((item) => typeof item === "string");
+        console.log(isNumberArray)
+
+        class Animal{
+            constructor (numberOfLegs, type){
+                this.numberOfLegs = numberOfLegs
+                this.type = type
+            }
+
+            Move() {
+                console.log('Moving')
+            }
+        }
+
+        class Spider extends Animal{
+            constructor() {
+                super(4, 'Mačka')
+            }
+            
+        }
+        console.log(f)
+    </script>
+</body>
+</html>
