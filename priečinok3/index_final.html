@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+        :root {
+            --accent: #6b2cff;
+            --danger: #ff6b6b;
+            --muted: #6b6b6b
+        }
+
+        body {
+            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+            background: linear-gradient(135deg, #676666 0%, #0b0b0b 100%);
+            margin: 0;
+            padding: 28px;
+            color: #1a1a1a
+        }
+
+        #app {
+            max-width: 960px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, rgba(197, 196, 196, 0.95), rgba(255, 255, 255, 0.85));
+            padding: 22px;
+            border-radius: 14px;
+            box-shadow: 0 12px 40px rgba(11, 22, 39, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.6)
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin: 0 0 8px 0;
+            color: var(--accent)
+        }
+
+        .monthly-summary ul {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 0;
+            margin: 8px 0 0 0;
+            list-style: none
+        }
+
+        .monthly-summary li {
+            background: linear-gradient(90deg, #ffffff, #f6f4ff);
+            padding: 8px 12px;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(107, 44, 255, 0.06);
+            font-weight: 600
+        }
+
+        .expense-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #ffffff, #fff9f2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            margin-bottom: 10px
+        }
+
+        .expense-item .text {
+            flex: 1;
+            font-weight: 600;
+            color: #222
+        }
+
+        .expense-item .date {
+            width: 140px;
+            color: var(--muted)
+        }
+
+        .expense-item .sum {
+            width: 120px;
+            text-align: right;
+            font-weight: 700;
+            color: #1b7a61
+        }
+
+        .expense-form {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px
+        }
+
+        .input,
+        .expense-form input {
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            outline: none
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform .12s ease, box-shadow .12s;
+            box-shadow: 0 10px 28px rgba(107, 44, 255, 0.12)
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 36px rgba(107, 44, 255, 0.18)
+        }
+
+        .btn-icon {
+            background: var(--danger);
+            padding: 8px;
+            border-radius: 10px
+        }
+
+        .error-box {
+            background: #fff0f0;
+            border: 1px solid #f5c6cb;
+            padding: 12px;
+            border-radius: 10px;
+            color: #a94442
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.03);
+            padding: 8px;
+            border-radius: 8px;
+            overflow: auto
+        }
+
+        @media (max-width:600px) {
+            #app {
+                padding: 14px
+            }
+
+            .monthly-summary ul {
+                flex-direction: column
+            }
+
+            .expense-item .date {
+                display: none
+            }
+        }
+    </style>
+</head>
+
+<body style="background-color: bisque;">
+
+    <!--pridavanie / upravovanie / mazanie
+
+kazdy expense bude mat:
+
+nazov
+datum
+sumu
+validovat:
+
+popisy nesmu byt prazdne
+zobrazit chybovu hlasku a nedovolit userovi pridat expense
+automaticky agregovat expenses spolu podla mesiaca
+
+pre kazdy mesiac zobrazit celkove minute uspory
+
+zobrazovat celkove minute uspory
+
+ukladanie do localStorage-->
+    <div id="app">
+        <div style="margin-bottom:12px;">
+            <h2 style="margin:0 0 8px 0;">Monthly totals</h2>
+            <div v-if="Object.keys(monthlyTotals).length === 0" style="opacity:.7">No expenses yet</div>
+            <ul>
+                <li v-for="(m, key) in monthlyTotals" :key="key" style="margin-bottom:6px;">
+                    <strong>{{ m.label }}:</strong> {{ formatCurrency(m.total) }}
+                </li>
+            </ul>
+        </div>
+
+        <div v-for="(expense, index) in expenses" :key="expense.id"
+            style="padding: 10 100px; border: 0.5px solid; display: flex; gap:8px; align-items: center; margin-bottom:20px; background: linear-gradient(75deg, rgb(231, 182, 113), rgb(90, 90, 122));">
+            <button v-on:click="removeItem(index)"> ❌</button>
+            <button v-on:click="startEdit(expense)"> ✏️ </button>
+            <template v-if="!expense.isEditing">
+                <div style="flex:1; text-align: center;">{{ expense.text }}</div>
+                <div style="width:140px;">{{ expense.date }}</div>
+                <div style="width:100px; text-align:right">{{ formatCurrency(expense.sum) }}</div>
+            </template>
+            <template v-else>
+                <input v-model="expense.text" style="flex:1" />
+                <input v-model="expense.date" type="date" style="width:140px" />
+                <input v-model.number="expense.sum" type="number" step="0.01" style="width:100px" />
+                <button v-on:click="finishEdit(expense)">Save</button>
+                <button v-on:click="cancelEdit(expense)">Cancel</button>
+            </template>
+        </div>
+
+        <div style="padding: 10 100px; border: 1px solid; display: flex; gap:100px; align-items: center;">
+            <input v-model="newExpenseText" type="text" placeholder="text" required />
+            <input v-model="newDateText" type="date" />
+            <input v-model="newSumText" type="text" placeholder="sum (number)" />
+            <button v-on:click="addNewItem" style="justify-content: space-between;"> Add Item </button>
+        </div>
+        <div v-if="formErrors.length" style="color:#a94442; margin-top:6px;">
+            <strong>Form errors:</strong>
+            <ul>
+                <li v-for="(err, i) in formErrors" :key="i">{{ err }}</li>
+            </ul>
+        </div>
+        <pre> {{ expenses }}</pre>
+
+        <div style="margin-top:12px; background: #fff6f6; padding:8px; border-radius:6px; border:1px solid #f5c6cb;">
+            <h3 style="margin:0 0 8px 0; color:#a94442; font-size:1rem;">Recent errors / logs</h3>
+            <div v-if="errors.length === 0" style="opacity:.7">No errors</div>
+            <ul>
+                <li v-for="(e, i) in errors" :key="i" style="color:#a94442; font-size:0.9em; margin-bottom:6px;">
+                    <strong>[{{ e.time }}]</strong> {{ e.message }}
+                    <div style="opacity:.6; font-size:0.8em;">{{ e.contextString }}</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="module">
+
+
+        import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+
+        const app = createApp({
+            data() {
+                return {
+                    newExpenseText: '',
+                    newDateText: '',
+                    newSumText: '',
+                    expenses: [],
+                    errors: [],
+                    formErrors: [],
+                    saveTimeout: null
+                }
+            },
+            computed: {
+                monthlyTotals() {
+                    const map = {}
+                    for (const e of this.expenses) {
+                        const sum = Number(e.sum) || 0
+                        const d = e.date ? new Date(e.date) : null
+                        const key = d && !isNaN(d) ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}` : 'unknown'
+                        if (!map[key]) {
+                            map[key] = { total: 0, label: d && !isNaN(d) ? d.toLocaleString(undefined, { month: 'long', year: 'numeric' }) : 'No date' }
+                        }
+                        map[key].total += sum
+                    }
+                    return map
+                }
+            },
+            methods: {
+                formatCurrency(v) {
+                    const n = Number(v) || 0
+                    return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(n)
+                },
+                reportError(err, context = {}) {
+                    try {
+                        const message = err && err.message ? err.message : String(err)
+                        const time = new Date().toLocaleTimeString()
+                        const contextString = JSON.stringify(context)
+                        this.errors.unshift({ message, context, contextString, time, stack: err && err.stack })
+                        console.error('[App Error]', message, context, err)
+                        if (this.errors.length > 50) this.errors.length = 50
+                    } catch (e) { console.error('reportError failed', e) }
+                },
+                startEdit(expense) {
+                    expense._backup = { text: expense.text, date: expense.date, sum: expense.sum }
+                    expense.isEditing = true
+                },
+                finishEdit(expense) {
+                    const errs = []
+                    if (!expense.text || String(expense.text).trim().length === 0) errs.push('Description cannot be empty')
+                    if (expense.sum !== null && expense.sum !== undefined && Number.isNaN(Number(expense.sum))) errs.push('Sum must be a number')
+                    if (errs.length) {
+                        this.reportError(new Error('Validation failed'), { method: 'finishEdit', errors: errs })
+                        this.formErrors = errs
+                        return
+                    }
+                    expense.isEditing = false
+                    delete expense._backup
+                },
+                cancelEdit(expense) {
+                    if (expense._backup) {
+                        expense.text = expense._backup.text
+                        expense.date = expense._backup.date
+                        expense.sum = expense._backup.sum
+                        delete expense._backup
+                    }
+                    expense.isEditing = false
+                },
+                addNewItem() {
+                    try {
+                        this.formErrors = []
+                        const errs = []
+                        if (!this.newExpenseText || this.newExpenseText.trim().length === 0) errs.push('Description is required')
+                        const clean = (this.newSumText || '').toString().replace(/[^0-9.-]+/g, '')
+                        const sum = clean === '' ? 0 : Number(clean)
+                        if (this.newSumText && Number.isNaN(sum)) errs.push('Sum must be a number')
+                        if (errs.length) { this.formErrors = errs; this.reportError(new Error('Validation'), { method: 'addNewItem', errors: errs }); return }
+
+                        const item = {
+                            id: Math.random().toString(36).substr(2, 9),
+                            text: this.newExpenseText,
+                            date: this.newDateText || '',
+                            sum: sum,
+                            isEditing: false
+                        }
+                        this.expenses.push(item)
+                        this.newExpenseText = ''
+                        this.newDateText = ''
+                        this.newSumText = ''
+                    } catch (err) {
+                        this.reportError(err, { method: 'addNewItem' })
+                    }
+                },
+                removeItem(index) {
+                    try {
+                        this.expenses.splice(index, 1)
+                    } catch (err) {
+                        this.reportError(err, { method: 'removeItem', index })
+                    }
+                },
+                saveToLocalStorage() {
+                    try {
+                        if (this.saveTimeout) clearTimeout(this.saveTimeout)
+                        this.saveTimeout = setTimeout(() => {
+                            const data = JSON.stringify(this.expenses)
+                            localStorage.setItem('expenses_v1', data)
+                            console.log('saved', this.expenses.length)
+                        }, 200)
+                    } catch (e) { console.error('saveToLocalStorage failed', e) }
+                },
+                loadFromLocalStorage() {
+                    try {
+                        const raw = localStorage.getItem('expenses_v1')
+                        if (!raw) return
+                        const parsed = JSON.parse(raw)
+                        if (Array.isArray(parsed)) {
+                            this.expenses = parsed.map(p => ({ ...p, sum: Number(p.sum) || 0 }))
+                        }
+                    } catch (e) { this.reportError(e, { method: 'loadFromLocalStorage' }) }
+                }
+            },
+            watch: {
+                expenses: {
+                    handler() { this.saveToLocalStorage() },
+                    deep: true
+                }
+            },
+            mounted() {
+                this.loadFromLocalStorage()
+            }
+        })
+
+        app.config.errorHandler = (err, vm, info) => {
+            console.error('[vue.errorHandler]', info, err)
+            try {
+                if (rootProxy && typeof rootProxy.reportError === 'function') {
+                    rootProxy.reportError(err, { source: 'vue.errorHandler', info })
+                }
+            } catch (e) { console.error('errorHandler report failed', e) }
+        }
+
+        let rootProxy = null
+        rootProxy = app.mount('#app')
+
+        window.addEventListener('error', (event) => {
+            console.error('[window.error]', event)
+            try {
+                if (rootProxy && typeof rootProxy.reportError === 'function') {
+                    rootProxy.reportError(event.error || event.message || 'window error', { filename: event.filename, lineno: event.lineno })
+                }
+            } catch (e) { console.error('window.error report failed', e) }
+        })
+
+        window.addEventListener('unhandledrejection', (ev) => {
+            console.error('[unhandledrejection]', ev)
+            try {
+                if (rootProxy && typeof rootProxy.reportError === 'function') {
+                    rootProxy.reportError(ev.reason || 'unhandledrejection', { source: 'unhandledrejection' })
+                }
+            } catch (e) { console.error('unhandledrejection report failed', e) }
+        })
+    </script>
+</body>
+
+</html>
