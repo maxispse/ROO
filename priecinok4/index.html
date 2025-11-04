@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        <label-group 
+        :texts="{title: `Click Simulator`, text: `Click many times!`}"
+        ></label-group>
+        <button-counter @count-divisible-by-five="showAlert()" initial-count="34"></button-counter>
+    </div>
+
+    <script type = "module" src="app.js"></script>
+</body>
+
+</html>
