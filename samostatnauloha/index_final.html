@@ -204,7 +204,8 @@ ukladanie do localStorage-->
             </template>
         </div>
 
-        <div style="padding: 10 100px; border: 1px solid; display: flex; gap:100px; align-items: center;">
+        <div
+            style="padding: 10 100px; border: 1px solid; display: flex; gap:130px; align-items: center; width: fit-content;">
             <input v-model="newExpenseText" type="text" placeholder="text" required />
             <input v-model="newDateText" type="date" />
             <input v-model="newSumText" type="text" placeholder="sum (number)" />
@@ -214,18 +215,6 @@ ukladanie do localStorage-->
             <strong>Form errors:</strong>
             <ul>
                 <li v-for="(err, i) in formErrors" :key="i">{{ err }}</li>
-            </ul>
-        </div>
-        <pre> {{ expenses }}</pre>
-
-        <div style="margin-top:12px; background: #fff6f6; padding:8px; border-radius:6px; border:1px solid #f5c6cb;">
-            <h3 style="margin:0 0 8px 0; color:#a94442; font-size:1rem;">Recent errors / logs</h3>
-            <div v-if="errors.length === 0" style="opacity:.7">No errors</div>
-            <ul>
-                <li v-for="(e, i) in errors" :key="i" style="color:#a94442; font-size:0.9em; margin-bottom:6px;">
-                    <strong>[{{ e.time }}]</strong> {{ e.message }}
-                    <div style="opacity:.6; font-size:0.8em;">{{ e.contextString }}</div>
-                </li>
             </ul>
         </div>
     </div>
@@ -242,7 +231,6 @@ ukladanie do localStorage-->
                     newDateText: '',
                     newSumText: '',
                     expenses: [],
-                    errors: [],
                     formErrors: [],
                     saveTimeout: null
                 }
