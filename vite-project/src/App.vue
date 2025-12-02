@@ -1,19 +1,15 @@
 <script setup>
-import { ref } from 'vue';
-
-const username = ref('');
-function Hello() {
-  alert(`Your username is ${username.value}`);
-}
+import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-  <div>
-    <h1>Hello, {{ username }}</h1>
-    <input v-model="username"/>
-    <button @click="Hello">
-      Alert
-    </button>
-  </div>
+  <nav>
+    <RouterLink to="/">Home</RouterLink>
+  </nav>
+
+  <hr />
+
+  <RouterView />
 </template>
+
 
